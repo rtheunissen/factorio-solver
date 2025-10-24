@@ -593,8 +593,8 @@
       const version = '2-0-55';
       const precision = 12;
       const item = this.item.replaceAll(' ', '-').toLowerCase();
-      const modules = `${item}:${this.config.modules.modules.join(':')}`;
-      const beacons = `${this.config.beacons.modules.modules.join(':')}:${this.config.beacons.count}`;
+      const modules = `${item}:${this.config.modules.modules.map(m => m.name).join(':')}`;
+      const beacons = `${this.config.beacons.modules.modules.map(m => m.name).join(':')}:${this.config.beacons.count}`;
 
       return 'https://kirkmcdonald.github.io/calc.html#' + [
           `data=${version}`,
