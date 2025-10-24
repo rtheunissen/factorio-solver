@@ -2,4 +2,5 @@
 
 https://rtheunissen.github.io/factorio-solver/
 
-<img width="787" height="757" alt="image" src="https://github.com/user-attachments/assets/2e82202d-cb07-44bd-882a-d6dcabe7e3d2" />
+<img width="615" height="752" alt="image" src="https://github.com/user-attachments/assets/0a41fbe0-e193-4216-939d-7161bf57ec95" />
+
