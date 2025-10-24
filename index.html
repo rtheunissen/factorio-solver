@@ -616,14 +616,14 @@
             <div>
               <h5>Overflow</h5>
               ${
-                (this.actual_rate > this.target_rate)
-                    ? Number(((this.actual_rate - this.target_rate) / this.target_rate * 100).toFixed(4)) + '%'
+                  ((this.actual_rate - this.target_rate) > 1e-12)
+                    ? Number(((this.actual_rate - this.target_rate) / this.target_rate * 100).toFixed(3)) + '%'
                     : ''
                 }
                <span class="info">
                ${
-                  (this.actual_rate > this.target_rate)
-                      ? '~' + Number((this.actual_rate - this.target_rate).toFixed(3)) + ' items / min'
+                  ((this.actual_rate - this.target_rate) > 1e-12)
+                      ? '~' + Number((this.actual_rate - this.target_rate).toFixed(4)) + ' items / min'
                       : 'None'
                  }
               </span>
@@ -724,7 +724,7 @@
   /**
    * Finds qualifying solutions for the give item name and target rate per min.
    */
-  function solve(item, recipe, target_rate, limit = 100) {
+  function solve(item, recipe, target_rate) {
     if (!target_rate) {
         return [];
     }
@@ -732,8 +732,8 @@
     const machines = Machines[recipe.machine];
 
     // Read current values from the inputs — dynamic!
-    const min_prod = parseFloat(inputs.min_prod.value) || 0;
-    const max_beacons = parseInt(inputs.max_beacons.value) || 0;
+    const min_prod = parseFloat(inputs.min_prod.value);
+    const max_beacons = parseInt(inputs.max_beacons.value);
 
     /**
      * Try every machine configuration...
@@ -743,7 +743,7 @@
        * Disqualify this config if the total production bonus is less than the
        * current minimum production constraint (entered as a percentage).
        */
-      if (config.prod_bonus < min_prod / 100) {
+      if (config.prod_bonus * 100 < min_prod) {
         continue
       }
       /**
@@ -791,18 +791,6 @@
         const remainder = (actual_rate - target_rate) / target_rate;
         if (remainder <= 0.01 || machines_needed <= 1) {
           solutions.push(new Solution(item, config, machine.name, machines_needed, target_rate, actual_rate));
-        }
-        /**
-         * No need to generate ALL solutions only to then slice them into a page,
-         * so instead we bail early if the limit is reached.
-         *
-         * TODO: Better pagination, which either:
-         *
-         *    A: Uses a generator which yields as we scroll, infinitely, OR
-         *    B: Stored all solutions in memory on solve, then slice that.
-         */
-        if (limit > 0 && solutions.length >= limit) {
-            return solutions;
         }
       }
     }
@@ -889,7 +877,7 @@
     }
     const solutions = solve(item, recipe, rate);
     sort(solutions);
-    display(solutions);
+    display(solutions.slice(100)); // TODO: Better pagination!
     updateURL();
   }
 
