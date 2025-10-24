@@ -9,21 +9,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;700&display=swap" rel="stylesheet">
 
+  <meta name="theme-color" content="#313031">
   <meta name="viewport" content="width=600">
 
   <style>
-
       * {
           box-sizing: border-box
       }
 
-      a, b, body, div, h1, h2, h3, h4, h5, h6, html, label, p, span, strong {
-          margin: 0;
-          padding: 0;
-          border: 0;
-          font: inherit;
-          font-size: 100%;
-          vertical-align: baseline
+      html {
+          font-size: 16px;
       }
 
       body {
@@ -33,8 +28,13 @@
           color: rgb(250, 250, 250);
       }
 
-      html {
-          font-size: 16px;
+      a, b, body, div, h1, h2, h3, h4, h5, h6, html, label, p, span, strong {
+          margin: 0;
+          padding: 0;
+          border: 0;
+          font: inherit;
+          font-size: 100%;
+          vertical-align: baseline
       }
 
       strong {
@@ -707,8 +707,8 @@
     const machines = Machines[recipe.machine];
 
     // Read current values from the inputs — dynamic!
-    const min_prod = parseFloat(inputs.min_prod.value);
-    const max_beacons = parseInt(inputs.max_beacons.value);
+    const min_prod = parseFloat(inputs.min_prod.value) || 0;
+    const max_beacons = parseInt(inputs.max_beacons.value) || 0;
 
     /**
      * Try every machine configuration...
@@ -882,12 +882,28 @@
   }
 
   /**
+   * Adds a small delay after text input before accepting the input.
+   */
+  function debounce(func, wait = 200) {
+      let timeoutId = null;
+      return (...args) => {
+          if (timeoutId) {
+              clearTimeout(timeoutId);
+          }
+          timeoutId = setTimeout(() => {
+              func.apply(this, args);
+              timeoutId = null;
+          }, wait);
+      };
+  }
+
+  /**
    * Solve when inputs change, which in turn updates the URL.
    */
-  inputs.item.addEventListener('input', run);
-  inputs.rate.addEventListener('input', run);
-  inputs.min_prod.addEventListener('input', run);
-  inputs.max_beacons.addEventListener('input', run);
+  inputs.item.addEventListener('input', debounce(run));
+  inputs.rate.addEventListener('input', debounce(run));
+  inputs.min_prod.addEventListener('input', debounce(run));
+  inputs.max_beacons.addEventListener('input', debounce(run));
   inputs.sort_by.forEach(r => r.addEventListener('change', run));
 
   /**
