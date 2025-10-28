@@ -1,14 +1,23 @@
 class Module {
+  
   constructor (name, prod_bonus, speed_bonus) {
     this.name = name;
     this.prod_bonus = prod_bonus;
     this.speed_bonus = speed_bonus;
   }
 }
+const MODULES = {
+  'pe': new Module('pe', 0.04, -0.05),
+  'p2': new Module('p2', 0.06, -0.10),
+  'p3': new Module('p3', 0.10, -0.15),
 
+  'se': new Module('se', 0.00, 0.20),
+  's2': new Module('s2', 0.00, 0.30),
+  's3': new Module('s3', 0.00, 0.50),
+}
 class Modules {
   constructor(names = []) {
-    this.modules = names.filter(n => n !== 'null').map((n) => MODULES[n]);
+    this.modules = names.filter(n => n !== NO_MODULE).map((n) => MODULES[n]);
     this.prod_bonus = this.modules.reduce((t, m) => t + m.prod_bonus, 0);
     this.speed_bonus = this.modules.reduce((t, m) => t + m.speed_bonus, 0);
   }
@@ -18,7 +27,6 @@ class Beacons {
   constructor(modules, count) {
     this.modules = modules;
     this.count = count;
-    this.prod_bonus = 0;
     this.speed_bonus = 1.5 * Math.sqrt(this.count || 1) * this.modules.speed_bonus;
   }
 }
@@ -26,9 +34,9 @@ class Beacons {
 class Config {
   constructor(modules, beacons) {
     this.modules = modules;
-    this.beacons = beacons;
-    this.prod_bonus = modules.prod_bonus + beacons.prod_bonus;
-    this.speed_bonus = modules.speed_bonus + beacons.speed_bonus;
+    this.beacons = beacons || new Beacons(new Modules([]), 0);
+    this.prod_bonus = this.modules.prod_bonus;
+    this.speed_bonus = this.modules.speed_bonus + this.beacons.speed_bonus;
   }
 }
 
@@ -51,16 +59,6 @@ class Solution {
     this.actual_rate = actual_rate;
   }
 }
-
-const MODULES = {
-  'pe': new Module('pe', 0.04, -0.05),
-  'p2': new Module('p2', 0.06, -0.10),
-  'p3': new Module('p3', 0.10, -0.15),
-
-  'se': new Module('se', 0.00, 0.20),
-  's2': new Module('s2', 0.00, 0.30),
-  's3': new Module('s3', 0.00, 0.50),
-};
 
 /**
  * These are the item recipes that the solver uses.
@@ -142,56 +140,84 @@ export const Machines = {
 
 
 /**
- * Beacons don't have production modules.
+ * This is the maximum number of beacons to solve for.
+ * 
+ * We generate all possible beacon configurations up to this number,
+ * then the solver skips configurations where the number of beacons
+ * in the configuration is greater than the max beacon input field.
  */
 const MAX_BEACONS = 12;
-const BEACON_MODULES = ['null', 'se', 's2', 's3'];
-
-
-
-const MACHINE_MODULES = ['null', 'se', 's2', 's3', 'pe', 'p2', 'p3'];
-
 
 /**
- *
+ * Module keys.
+ * 
+ * These match Kirk McDonald's conventions to make URL generation easier.
  */
-function generate_configs() {
-  const configs = [
-    new Config([], 0),
-  ]
-  for (let b1 = 0; b1 < BEACON_MODULES.length; b1++) {
-    for (let b2 = b1; b2 < BEACON_MODULES.length; b2++) {
-      const beacon_modules = new Modules([
-        BEACON_MODULES[b1],
-        BEACON_MODULES[b2],
-      ]);
-      if (beacon_modules.modules.length === 0) {
-        continue;
-      }
-      for (let m1 = 0; m1 < MACHINE_MODULES.length; m1++) {
-        for (let m2 = m1; m2 < MACHINE_MODULES.length; m2++) {
-          for (let m3 = m2; m3 < MACHINE_MODULES.length; m3++) {
-            for (let m4 = m3; m4 < MACHINE_MODULES.length; m4++) {
-              const modules = new Modules([
-                MACHINE_MODULES[m1],
-                MACHINE_MODULES[m2],
-                MACHINE_MODULES[m3],
-                MACHINE_MODULES[m4],
-              ]);
-              for (let bN = 1; bN <= MAX_BEACONS; bN++) {
-                const beacons = new Beacons(beacon_modules, bN);
-                configs.push(new Config(modules, beacons));
-              }
+const NO_MODULE = 'null';
+const S1_MODULE = 'se';
+const S2_MODULE = 's2';
+const S3_MODULE = 's3';
+const P1_MODULE = 'pe';
+const P2_MODULE = 'p2';
+const P3_MODULE = 'p3';
+
+/**
+ * Beacons don't have production modules.
+ */
+const BEACON_MODULES = [
+  NO_MODULE, 
+  S1_MODULE, 
+  S2_MODULE, 
+  S3_MODULE,
+];
+
+/**
+ * All modules that can be used in machine configurations, 
+ * eg. assembling machine, furnace, chemical plant, etc.
+ */
+const MACHINE_MODULES = [
+  NO_MODULE, 
+  S1_MODULE, 
+  S2_MODULE, 
+  S3_MODULE, 
+  P1_MODULE, 
+  P2_MODULE, 
+  P3_MODULE,
+];
+
+/**
+ * Generate all possible machine configurations up-front for the solver to use.
+ */
+const configs = []
+
+for (let m1 = 0; m1 < MACHINE_MODULES.length; m1++) {
+  for (let m2 = m1; m2 < MACHINE_MODULES.length; m2++) {
+    for (let m3 = m2; m3 < MACHINE_MODULES.length; m3++) {
+      for (let m4 = m3; m4 < MACHINE_MODULES.length; m4++) {
+        const modules = new Modules([
+          MACHINE_MODULES[m1],
+          MACHINE_MODULES[m2],
+          MACHINE_MODULES[m3],
+          MACHINE_MODULES[m4],
+        ]);
+        // Base config without beacons.
+        configs.push(new Config(modules, null));
+
+        for (let b1 = 0; b1 < BEACON_MODULES.length; b1++) {
+          for (let b2 = b1 || 1; b2 < BEACON_MODULES.length; b2++) { 
+            const beacon_modules = new Modules([
+              BEACON_MODULES[b1],
+              BEACON_MODULES[b2],
+            ]);
+            for (let bN = 1; bN <= MAX_BEACONS; bN++) {
+              configs.push(new Config(modules, new Beacons(beacon_modules, bN)));
             }
           }
         }
       }
     }
   }
-  return configs;
 }
-
-const configs = generate_configs();
 
 /**
  * Finds qualifying solutions for the give item name and target rate per min.
@@ -212,11 +238,11 @@ function solve(input) {
   const solutions = [];
 
   const item = input.item;
-  const recipe = Recipes[item];
   const target_rate = parseFloat(input.rate);
   const min_prod = parseFloat(input.min_prod) / 100;
   const max_beacons = parseInt(input.max_beacons);
 
+  const recipe = Recipes[item];
   const machines = Machines[recipe.machine];
   /**
    * Try every machine configuration...
@@ -318,12 +344,12 @@ function compare(order) {
 // 4. Listen for messages from the main thread
 self.onmessage = (event) => {
   const { type, payload } = event.data;
-  const { input, limit } = payload;
   switch (type) {
     /**
      *
      */
     case 'solve': {
+      const { input, limit } = payload;
       const error = validate(input)
       if (error) {
         self.postMessage({ type, payload: { input, error } })

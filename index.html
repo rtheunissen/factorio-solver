@@ -442,7 +442,6 @@
       case 'solve': {
         const { solutions, input } = payload;
         display(solutions);
-
         if (solutions) {
           save(input);
         }
@@ -549,8 +548,8 @@
     const version = '2-0-55';
     const precision = 12;
     const item = solution.item.replaceAll(' ', '-').toLowerCase();
-    const modules = `${item}:${solution.config.modules.modules.join(':')}`;
-    const beacons = `${solution.config.beacons.modules.modules.join(':')}:${solution.config.beacons.count}`;
+    const modules = `${item}:${solution.config.modules.modules.map(m => m.name).join(':')}`;
+    const beacons = `${solution.config.beacons.modules.modules.map(m => m.name).join(':')}:${solution.config.beacons.count}`;
 
     return 'https://kirkmcdonald.github.io/calc.html#' + [
       `data=${version}`,
