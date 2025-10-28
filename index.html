@@ -321,86 +321,6 @@
 
   </style>
 
-  <script>
-      /**
-       * These are the item recipes that the solver uses.
-       *
-       * Some might be missing, so feel free to add them for others.
-       */
-      const Recipes = {
-          'Accumulator':                  { craft_time: 10,   product_count: 1,    allows_prod: false, machine: 'assembling-machine' },
-          'Advanced Circuit':             { craft_time: 6,    product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Automation Science Pack':      { craft_time: 5,    product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Battery':                      { craft_time: 4,    product_count: 1,    allows_prod: true,  machine: 'chemical-plant' },
-          'Chemical Science Pack':        { craft_time: 24,   product_count: 2,    allows_prod: true,  machine: 'assembling-machine' },
-          'Copper Cable':                 { craft_time: 0.5,  product_count: 2,    allows_prod: true,  machine: 'assembling-machine' },
-          'Copper Plate':                 { craft_time: 3.2,  product_count: 1,    allows_prod: true,  machine: 'furnace' },
-          'Electric Engine Unit':         { craft_time: 10,   product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Electric Furnace':             { craft_time: 5,    product_count: 1,    allows_prod: false, machine: 'assembling-machine' },
-          'Electronic Circuit':           { craft_time: 0.5,  product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Engine Unit':                  { craft_time: 10,   product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Flying Robot Frame':           { craft_time: 20,   product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Grenade':                      { craft_time: 8,    product_count: 1,    allows_prod: false, machine: 'assembling-machine' },
-          'Inserter':                     { craft_time: 0.5,  product_count: 1,    allows_prod: false, machine: 'assembling-machine' },
-          'Iron Gear Wheel':              { craft_time: 0.5,  product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Iron Stick':                   { craft_time: 0.5,  product_count: 2,    allows_prod: true,  machine: 'assembling-machine' },
-          'Logistic Science Pack':        { craft_time: 6,    product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Low Density Structure':        { craft_time: 15,   product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Military Science Pack':        { craft_time: 10,   product_count: 2,    allows_prod: true,  machine: 'assembling-machine' },
-          'Piercing Rounds Magazine':     { craft_time: 3,    product_count: 1,    allows_prod: false, machine: 'assembling-machine' },
-          'Pipe':                         { craft_time: 0.5,  product_count: 1,    allows_prod: false, machine: 'assembling-machine' },
-          'Plastic Bar':                  { craft_time: 1,    product_count: 2,    allows_prod: true,  machine: 'chemical-plant' },
-          'Processing Unit':              { craft_time: 10,   product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Production Science Pack':      { craft_time: 21,   product_count: 3,    allows_prod: true,  machine: 'assembling-machine' },
-          'Radar':                        { craft_time: 0.5,  product_count: 1,    allows_prod: false, machine: 'assembling-machine' },
-          'Rail':                         { craft_time: 0.5,  product_count: 2,    allows_prod: false, machine: 'assembling-machine' },
-          'Rocket Control Unit':          { craft_time: 30,   product_count: 1,    allows_prod: true,  machine: 'rocket-silo' },
-          'Rocket Fuel':                  { craft_time: 30,   product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          'Rocket Part':                  { craft_time: 3,    product_count: 1,    allows_prod: true,  machine: 'rocket-silo' },
-          'Satellite':                    { craft_time: 5,    product_count: 1,    allows_prod: false, machine: 'assembling-machine' },
-          'Solar Panel':                  { craft_time: 10,   product_count: 1,    allows_prod: false, machine: 'assembling-machine' },
-          'Solid Fuel From Light Oil':    { craft_time: 2,    product_count: 1,    allows_prod: true,  machine: 'chemical-plant' },
-          'Steel Plate':                  { craft_time: 16,   product_count: 1,    allows_prod: true,  machine: 'furnace' },
-          'Stone Brick':                  { craft_time: 3.2,  product_count: 1,    allows_prod: true,  machine: 'furnace' },
-          'Sulfur':                       { craft_time: 1,    product_count: 2,    allows_prod: true,  machine: 'chemical-plant' },
-          'Sulfuric Acid':                { craft_time: 1,    product_count: 50,   allows_prod: true,  machine: 'chemical-plant' },
-          'Transport Belt':               { craft_time: 0.5,  product_count: 2,    allows_prod: false, machine: 'assembling-machine' },
-          'Utility Science Pack':         { craft_time: 21,   product_count: 3,    allows_prod: true,  machine: 'assembling-machine' },
-          'Wall':                         { craft_time: 0.5,  product_count: 1,    allows_prod: true,  machine: 'assembling-machine' },
-          /**
-           * This one is a bit unique, because it's a rocket launch that produces 1000 space science packs.
-           * The craft time here was derived from the Kirk McDonald calculator.
-           */
-          'Space Science Pack': { craft_time: 340.5665892, product_count: 1000, allows_prod: false, machine: 'rocket-silo' },
-
-      };
-
-      /**
-       * These are the machine types, and the specific machines within that type.
-       */
-      const Machines = {
-          'assembling-machine': [
-              { name: 'assembling-machine-1', craft_speed: 0.50, modules: 0 },
-              { name: 'assembling-machine-2', craft_speed: 0.75, modules: 2 },
-              { name: 'assembling-machine-3', craft_speed: 1.25, modules: 4 },
-          ],
-          'furnace':         [
-              { name: 'electric-furnace', craft_speed: 2.00, modules: 2 },
-              { name: 'steel-furnace',    craft_speed: 2.00, modules: 0 },
-              { name: 'stone-furnace',    craft_speed: 1.00, modules: 0 }
-          ],
-          'chemical-plant':  [
-              { name: 'chemical-plant', craft_speed: 1.00, modules: 3 },
-          ],
-          'oil-refinery':    [
-              { name: 'oil-refinery', craft_speed: 1.00, modules: 3 },
-          ],
-          'rocket-silo':     [
-              { name: 'rocket-silo', craft_speed: 1.00, modules: 4 },
-          ],
-      };
-  </script>
-
 </head>
 <body>
 <div class="panel">
@@ -438,13 +358,13 @@
       <h3>Preference</h3>
       <div>
         <label for="sort-by-precision">
-          <input type="radio" id="sort-by-precision" name="sort-by" value="precision" checked>
+          <input type="radio" id="sort-by-precision" name="sort" value="precision,-production,machines" checked>
           Precision
         </label>
       </div>
       <div>
         <label for="sort-by-production">
-          <input type="radio" id="sort-by-production" name="sort-by" value="production">
+          <input type="radio" id="sort-by-production" name="sort" value="-production,precision,machines">
           Production
         </label>
       </div>
@@ -455,469 +375,210 @@
   <div id="solutions"></div>
 </div>
 </body>
+<script src="solver.js" type="module"></script>
 
-<script>
+<script type="module">
 
-  const MAX_BEACONS = 12;
-
-  const NO_MODULE = 'null'
-
-  /**
-   * A single module, eg. "s2" for Speed Module 2
-   */
-  class Module {
-      constructor(name) {
-          this.name = name;
-      }
-      get key() {
-          return this.name;
-      }
-      get html() {
-          if (this.name === NO_MODULE) return '';
-          return `<span class="icon ${this.name}"></span>`
-      }
-      get prod_bonus() {
-          switch (this.name) {
-              case 'pe': return 0.04;
-              case 'p2': return 0.06;
-              case 'p3': return 0.10;
-              default:
-                  return 0;
-          }
-      }
-      get speed_bonus() {
-          switch (this.name) {
-              case 'pe': return -0.05;
-              case 'p2': return -0.10;
-              case 'p3': return -0.15;
-              case 'se': return 0.20;
-              case 's2': return 0.30;
-              case 's3': return 0.50;
-              default:
-                  return 0;
-          }
-      }
-  }
-
-  /**
-   * A set of modules, in aggregate.
-   */
-  class Modules {
-    constructor(modules) {
-      this.modules = [...modules].sort().reverse().map(m => new Module(m));
-    }
-    get key() {
-      return this.modules.map(m => m.key).join('');
-    }
-    get html() {
-      if (this.count === 0) {
-          return '<span class="info">None</span>';
-      } else {
-          return this.modules.map((m) => m.html).join('');
-      }
-    }
-    get count() {
-      return this.modules.filter(m => m.name !== NO_MODULE).length;
-    }
-    get prod_bonus() {
-      return this.modules.reduce((t, m) => t + m.prod_bonus, 0);
-    }
-    get speed_bonus() {
-      return this.modules.reduce((t, m) => t + m.speed_bonus, 0);
-    }
-  }
-
-  /**
-   * Beacon modules and the number of beacons affecting the machine.
-   */
-  class Beacons {
-    constructor(modules, count) {
-      this.modules = new Modules(count === 0 ? [] : modules)
-      this.count = this.modules.count === 0 ? 0 : count;
-    }
-    get key() {
-      return `${this.modules.key}:${this.count}`;
-    }
-    get html() {
-      if (this.count === 0) {
-        return '<span class="info">None</span>';
-      } else {
-        return `${this.modules.html} ⨯ ${this.count}`;
-      }
-    }
-    get prod_bonus() {
-      return 0;
-    }
-    get speed_bonus() {
-      if (this.count === 0) return 0;
-      return 1.5 * Math.sqrt(this.count) * this.modules.speed_bonus;
-    }
-  }
-
-  /**
-   * Machine configuration that combines a setup of modules and beacons.
-   */
-  class Config {
-    constructor(modules, beacons) {
-      this.modules = modules;
-      this.beacons = beacons;
-    }
-    get key() {
-      return `${this.modules.key}:${this.beacons.key}`;
-    }
-    get speed_bonus() {
-      return this.modules.speed_bonus + this.beacons.speed_bonus;
-    }
-    get prod_bonus() {
-      return this.modules.prod_bonus + this.beacons.prod_bonus;
-    }
-  }
-
-  /**
-   * Combines the item, machine, module and beacon config, and production rates.
-   * This is the state for one solution "block" in the UI, below the inputs.
-   */
-  class Solution {
-    constructor(item, config, machine, machine_count, target_rate, actual_rate) {
-      this.item = item;
-      this.config = config;
-      this.machine = machine;
-      this.machine_count = machine_count;
-      this.target_rate = target_rate;
-      this.actual_rate = actual_rate;
-    }
-    /**
-     * Builds a Kirk McDonald calculator link for this solution.
-     */
-    get link_to_calc() {
-      const version = '2-0-55';
-      const precision = 12;
-      const item = this.item.replaceAll(' ', '-').toLowerCase();
-      const modules = `${item}:${this.config.modules.modules.map(m => m.name).join(':')}`;
-      const beacons = `${this.config.beacons.modules.modules.map(m => m.name).join(':')}:${this.config.beacons.count}`;
-
-      return 'https://kirkmcdonald.github.io/calc.html#' + [
-          `data=${version}`,
-          `rp=${precision}`,
-          `cp=${precision}`,
-          `buildings=${this.machine}`,
-          `items=${item}:r:${this.target_rate.toFixed(precision)}`,
-          `modules=${modules};${beacons}`
-      ].join('&');
-    }
-    /**
-     * Produces the HTML block for a this solution.
-     */
-    get html() {
-      return `
-        <div class="solution panel-inset">
-          <a href="${this.link_to_calc}" target="_blank">
-
-            <div>
-              <h5>Overflow</h5>
-              ${
-                  ((this.actual_rate - this.target_rate) > 1e-12)
-                    ? Number(((this.actual_rate - this.target_rate) / this.target_rate * 100).toFixed(3)) + '%'
-                    : ''
-                }
-               <span class="info">
-               ${
-                  ((this.actual_rate - this.target_rate) > 1e-12)
-                      ? '~' + Number((this.actual_rate - this.target_rate).toFixed(4)) + ' items / min'
-                      : 'None'
-                 }
-              </span>
-            </div>
-
-            <div>
-              <h5>Machines</h5>
-              <span class="icon ${this.machine}"></span> ⨯ ${Math.ceil(this.machine_count)}
-              <span class="info">
-                ${(this.config.prod_bonus * 100).toFixed(0) + '% production' + ', '
-                + (this.config.speed_bonus * 100).toFixed(0) + '% speed bonus'}
-              </span>
-            </div>
-
-            <div>
-              <h5>Modules</h5>
-              ${this.config.modules.html}
-            </div>
-            <div>
-              <h5>Beacons</h5>
-              ${this.config.beacons.html}
-            </div>
-          </a>
-        </div>
-    `
-    }
-  }
-
-  /**
-   * Resolve all input elements in the DOM.
-   */
-  const inputs = {
-      item: document.getElementById('item-name'),
-      rate: document.getElementById('target-rate'),
-      sort_by: document.querySelectorAll('input[name="sort-by"]'),
-      min_prod: document.getElementById('min-prod'),
-      max_beacons: document.getElementById('max-beacons'),
-  }
-
-  /**
-   * Beacons don't have production modules.
-   *
-   * Note: Use 'se' instead of 's1' to match the Kirk McDonald convention.
-   */
-  const machine_modules = [NO_MODULE, 'se', 's2', 's3', 'pe', 'p2', 'p3'];
-  const beacon_modules  = [NO_MODULE, 'se', 's2', 's3'];
-
-  /**
-   * Generate all possible combinations of modules and beacons.
-   *
-   * We do this once when the page loads, and the solver tries them all.
-   * This allows us to keep the tab open and do many calculations without the
-   * need to generate the machine configurations every time.
-   */
-  const configs = {}
-
-  /**
-   * Start with the module permutations...
-   *
-   * Even though some machines don't support 4 modules (and some none at all),
-   * we disqualify those when the solver runs because that is input-based and
-   * must be dynamic. The configuration we generate here is static.
-   *
-   * This might be dumb actually... should we generate the config every time and
-   * only generate those that qualify the current min prod, max beacons, etc.?
-   */
-  for (const m1 of machine_modules) {
-    for (const m2 of machine_modules) {
-      for (const m3 of machine_modules) {
-        for (const m4 of machine_modules) {
-          const modules = new Modules([m1, m2, m3, m4]);
-          /**
-           * Also some beacon module permutations...
-           */
-          for (const b1 of beacon_modules) {
-            for (const b2 of beacon_modules) {
-              /**
-               * Combine every module permutation with some count of this beacon.
-               */
-              for (let beaconCount = 0; beaconCount <= MAX_BEACONS; beaconCount++) {
-                const beacons = new Beacons([b1, b2], beaconCount);
-                /**
-                 * Combine the module and beacon config, map by key to avoid duplicates.
-                 *
-                 * TODO: There is probably a recursive replacement algorithm that is both
-                 *       faster and may avoid the need for the key.
-                 */
-                const config = new Config(modules, beacons);
-                configs[config.key] = config;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Finds qualifying solutions for the give item name and target rate per min.
-   */
-  function solve(item, recipe, target_rate) {
-    if (!target_rate) {
-        return [];
-    }
-    const solutions = [];
-    const machines = Machines[recipe.machine];
-
-    // Read current values from the inputs — dynamic!
-    const min_prod = parseFloat(inputs.min_prod.value);
-    const max_beacons = parseInt(inputs.max_beacons.value);
-
-    /**
-     * Try every machine configuration...
-     */
-    for (const config of Object.values(configs)) {
-      /**
-       * Disqualify this config if the total production bonus is less than the
-       * current minimum production constraint (entered as a percentage).
-       */
-      if (config.prod_bonus * 100 < min_prod) {
-        continue
-      }
-      /**
-       * Disqualify this config if the number of beacons is greater than the
-       * current maximum beacon count constraint.
-       */
-      if (config.beacons.count > max_beacons) {
-        continue
-      }
-      /**
-       * Disqualify this config if there is a production bonus, and also that
-       * the item does not support production modules (is not intermediate).
-       */
-      if (config.prod_bonus > 0 && !recipe.allows_prod) {
-        continue
-      }
-      /**
-       * For each machine of the item's machine type...
-       */
-      for (const machine of machines) {
-        /**
-         * Disqualify this config if it involves more modules than the machine supports.
-         */
-        if (config.modules.count > machine.modules) {
-          continue
-        }
-        /**
-         * Calculate the number of machines needed, and the actual rate using that number.
-         */
-        const craft_per_second = machine.craft_speed / recipe.craft_time * (1 + config.speed_bonus);
-        const items_per_second = craft_per_second * recipe.product_count * (1 + config.prod_bonus);
-        const items_per_minute = items_per_second * 60;
-        /**
-         * Can't have fractional machines in practice, so the actual rate will
-         * always be spot on or slightly more than the target rate.
-         */
-        const machines_needed = target_rate / items_per_minute;
-        const actual_rate = items_per_minute * Math.ceil(machines_needed);
-        /**
-         * Qualify the solution if the difference between the actual rate and the
-         * target rate (over-production rate) is within 1% of the target rate.
-         *
-         * OR, if the number of machines is ~1 (potentially with a large remainder).
-         */
-        const remainder = (actual_rate - target_rate) / target_rate;
-        if (remainder <= 0.01 || machines_needed <= 1) {
-          solutions.push(new Solution(item, config, machine.name, machines_needed, target_rate, actual_rate));
-        }
-      }
-    }
-    return solutions;
-  }
-
-  /**
-   * Renders the given solutions into the solutions space.
-   */
-  function display(solutions) {
-    document.getElementById('solutions').innerHTML =
-        solutions.map(s => s.html).join('');
-  }
-
-  /**
-   * Sorts given solutions by the current sorting preference.
-   */
-  function sort(solutions) {
-    const comparator = {
-      'production': s => s.config.prod_bonus * -1,
-      'machines': s => Math.ceil(s.machine_count),
-      'precision': s => s.actual_rate - s.target_rate,
-    };
-    // Determine field order for the sort.
-    const order = (() => {
-        for (const radio of inputs.sort_by) {
-            if (radio.checked) {
-                switch (radio.value) {
-                    case 'precision':
-                        return ['precision', 'production', 'machines'];
-                    case 'production':
-                        return ['production', 'precision', 'machines'];
-                }
-            }
-        }
-    })();
-    return solutions.sort((a, b) => {
-      for (const field of order) {
-        if (comparator[field](a) < comparator[field](b)) return -1;
-        if (comparator[field](a) > comparator[field](b)) return +1;
-      }
-      return 0;
-    })
-  }
-
+  const solver = new Worker('./solver.js', { type: 'module' });
 
   /**
    * Updates the URL based on the current values of the inputs.
    *
    * This makes it easy to share with someone else.
    */
-  function updateURL() {
-      const params = new URLSearchParams();
-      params.set('item', inputs.item.value.trim());
-      params.set('rate', inputs.rate.value.trim());
-      params.set('min_prod', inputs.min_prod.value.trim());
-      params.set('max_beacons', inputs.max_beacons.value.trim());
-      for (const radio of inputs.sort_by) {
-          if (radio.checked) params.set('sort_by', radio.value);
-      }
-      history.pushState(null, '', `?${params}`);
+  function save(input) {
+    const params = new URLSearchParams();
+    params.set('item', input.item);
+    params.set('rate', input.rate);
+    params.set('min_prod', input.min_prod);
+    params.set('max_beacons', input.max_beacons);
+    params.set('sort', input.sort);
+    history.pushState(null, '', `?${params}`);
   }
 
-  /**
-   * Updates the current inputs from values in the URL (on page load).
-   */
-  function readURL() {
-      const params = new URLSearchParams(window.location.search);
-      inputs.item.value = params.get('item');
-      inputs.rate.value = params.get('rate');
-      inputs.min_prod.value = params.get('min_prod');
-      inputs.max_beacons.value = params.get('max_beacons');
-      for (const radio of inputs.sort_by) {
-          radio.checked = radio.value === (params.get('sort_by') || 'precision');
-      }
+  function load() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      item: params.get('item'),
+      rate: params.get('rate'),
+      min_prod: params.get('min_prod'),
+      max_beacons: params.get('max_beacons'),
+      sort: params.get('sort') || inputs.sort[0].value,
+    }
   }
+
+  function fill(input) {
+    inputs.item.value = input.item;
+    inputs.rate.value = input.rate;
+    inputs.min_prod.value = input.min_prod;
+    inputs.max_beacons.value = input.max_beacons;
+    inputs.sort.forEach(r => r.checked = r.value === input.sort); // TODO: inputs.sort.value = params.get('sort');
+  }
+
+  function read() {
+    return {
+      item: inputs.item.value,
+      rate: inputs.rate.value,
+      min_prod: inputs.min_prod.value,
+      max_beacons: inputs.max_beacons.value,
+      sort: [...inputs.sort].find((r) => r.checked).value, // TODO: Remove when using form elements, .value
+    }
+  }
+
 
   function run() {
-    const item = inputs.item.value.trim();
-    const rate = parseFloat(inputs.rate.value);
-    const recipe = Recipes[item];
-    if (!recipe) {
-      return; // Skip when the item name input doesn't match a recipe.
+    const input = read();
+    const limit = 100;
+    solver.postMessage({
+      type: 'solve',
+      payload: { input, limit },
+    });
+  }
+
+  // 4. Listen for messages *from* the worker
+  solver.onmessage = (event) => {
+    const { type, payload } = event.data;
+    switch(type) {
+      case 'solve': {
+        const { solutions, input } = payload;
+        display(solutions);
+
+        if (solutions) {
+          save(input);
+        }
+      }
     }
-    const solutions = solve(item, recipe, rate);
-    sort(solutions);
-    display(solutions.slice(100)); // TODO: Better pagination!
-    updateURL();
+  }
+
+
+  /**
+   * Resolve all input elements in the DOM.
+   *
+   * TODO: <form> form.elements
+   */
+  const inputs = {
+    item: document.getElementById('item-name'),
+    rate: document.getElementById('target-rate'),
+    sort: document.querySelectorAll('input[name="sort"]'),
+    min_prod: document.getElementById('min-prod'),
+    max_beacons: document.getElementById('max-beacons'),
+  }
+
+
+
+  /**
+   * Renders the given solutions into the solutions space.
+   */
+  function display(solutions) {
+    const parent = document.getElementById('solutions');
+    parent.innerHTML = (solutions || []).map(render).join('');
+  }
+
+
+
+
+  /**
+   * Produces the HTML block for a solution.
+   */
+  function render(solution) {
+    return `
+        <div class="solution panel-inset">
+          <a href="${link_to_calc(solution)}" target="_blank">
+                    <div>
+              <h5>Overflow</h5>
+                ${
+            ((solution.actual_rate - solution.target_rate) > 1e-12)
+                    ? Number(((solution.actual_rate - solution.target_rate) / solution.target_rate * 100).toFixed(3)) + '%'
+                    : ''
+    }
+              <span class="info">
+                ${
+            ((solution.actual_rate - solution.target_rate) > 1e-12)
+                    ? '~' + Number((solution.actual_rate - solution.target_rate).toFixed(4)) + ' items / min'
+                    : 'None'
+    }
+              </span>
+            </div>
+
+            <div>
+              <h5>Machines</h5>
+              <span class="icon ${solution.machine.name}"></span> ⨯ ${Math.ceil(solution.machines_needed)}
+              <span class="info">
+                ${(solution.config.prod_bonus * 100).toFixed(0) + '% production' + ', '
+    + (solution.config.speed_bonus * 100).toFixed(0) + '% speed bonus'}
+              </span>
+            </div>
+
+            <div>
+              <h5>Modules</h5>
+              ${modules_to_html(solution.config.modules)}
+            </div>
+            <div>
+              <h5>Beacons</h5>
+              ${beacons_to_html(solution.config.beacons)}
+            </div>
+          </a>
+        </div>
+        `
+  }
+
+
+  function modules_to_html(modules) {
+    if (modules.count === 0) {
+      return '<span class="info">None</span>';
+    } else {
+      return modules.modules.map(module => `<span class="icon ${module.name}"></span>`).join('');
+    }
+  }
+
+  function beacons_to_html(beacons) {
+    if (beacons.count === 0) {
+      return '<span class="info">None</span>';
+    } else {
+      return `${modules_to_html(beacons.modules)} ⨯ ${beacons.count}`;
+    }
+  }
+
+
+  /**
+   * Builds a Kirk McDonald calculator link for this solution.
+   *
+   * TODO: Generate this on click? Lazy?
+   */
+  function link_to_calc(solution) {
+    const version = '2-0-55';
+    const precision = 12;
+    const item = solution.item.replaceAll(' ', '-').toLowerCase();
+    const modules = `${item}:${solution.config.modules.modules.join(':')}`;
+    const beacons = `${solution.config.beacons.modules.modules.join(':')}:${solution.config.beacons.count}`;
+
+    return 'https://kirkmcdonald.github.io/calc.html#' + [
+      `data=${version}`,
+      `rp=${precision}`,
+      `cp=${precision}`,
+      `buildings=${solution.machine.name}`,
+      `items=${item}:r:${Number(solution.target_rate.toFixed(precision))}`,
+      `modules=${modules};${beacons}`
+    ].join('&');
   }
 
   /**
    * This updates the "data list" of the item name input, which creates a native
    * sort of autocomplete input of all the keys in the recipe set.
    */
-  const datalist = document.getElementById('recipe-list')
-  if (datalist) {
-    Object.keys(Recipes).sort().forEach(name => {
-      const option = document.createElement('option')
-      option.value = name
-      datalist.appendChild(option)
-    })
-  }
-
-  /**
-   * Adds a small delay after text input before accepting the input.
-   */
-  function debounce(func, wait = 200) {
-      let timeoutId = null;
-      return (...args) => {
-          if (timeoutId) {
-              clearTimeout(timeoutId);
-          }
-          timeoutId = setTimeout(() => {
-              func.apply(this, args);
-              timeoutId = null;
-          }, wait);
-      };
-  }
+  import { Recipes } from './solver.js';
+  document.getElementById('recipe-list').innerHTML = Object.keys(Recipes).map((name) => {
+    return `<option value="${name}"></option>`
+  }).join('');
 
   /**
    * Solve when inputs change, which in turn updates the URL.
    */
-  inputs.item.addEventListener('input', debounce(run));
-  inputs.rate.addEventListener('input', debounce(run));
-  inputs.min_prod.addEventListener('input', debounce(run));
-  inputs.max_beacons.addEventListener('input', debounce(run));
-  inputs.sort_by.forEach(r => r.addEventListener('change', run));
+  inputs.item.addEventListener('input', run);
+  inputs.rate.addEventListener('input', run);
+  inputs.min_prod.addEventListener('input', run);
+  inputs.max_beacons.addEventListener('input', run);
+  inputs.sort.forEach(r => r.addEventListener('change', run));
 
   /**
    * This fixes the back button, because we might want to cycle back and then
@@ -925,16 +586,15 @@
    * but not the calculation!
    */
   window.addEventListener('popstate', () => {
-      readURL();
-      run();
+    fill(load());
+    run();
   });
+
   /**
    * On load: read input values from the URL, then solve.
    */
-  window.addEventListener('DOMContentLoaded', () => {
-      readURL();
-      run();
-  });
+  fill(load());
+  run();
 
 </script>
 </html>
