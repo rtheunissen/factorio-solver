@@ -26,9 +26,9 @@ class Beacons {
 class Config {
   constructor(modules, beacons) {
     this.modules = modules;
-    this.beacons = beacons;
-    this.prod_bonus = modules.prod_bonus + beacons.prod_bonus;
-    this.speed_bonus = modules.speed_bonus + beacons.speed_bonus;
+    this.beacons = beacons || new Beacons(new Modules([]), 0);
+    this.prod_bonus = this.modules.prod_bonus + this.beacons.prod_bonus;
+    this.speed_bonus = this.modules.speed_bonus + this.beacons.speed_bonus;
   }
 }
 
@@ -146,52 +146,45 @@ export const Machines = {
  */
 const MAX_BEACONS = 12;
 const BEACON_MODULES = ['null', 'se', 's2', 's3'];
-
-
-
 const MACHINE_MODULES = ['null', 'se', 's2', 's3', 'pe', 'p2', 'p3'];
 
-
+const configs = [];
 /**
- *
+ * Modules
  */
-function generate_configs() {
-  const configs = [
-    new Config([], 0),
-  ]
-  for (let b1 = 0; b1 < BEACON_MODULES.length; b1++) {
-    for (let b2 = b1; b2 < BEACON_MODULES.length; b2++) {
-      const beacon_modules = new Modules([
-        BEACON_MODULES[b1],
-        BEACON_MODULES[b2],
-      ]);
-      if (beacon_modules.modules.length === 0) {
-        continue;
-      }
-      for (let m1 = 0; m1 < MACHINE_MODULES.length; m1++) {
-        for (let m2 = m1; m2 < MACHINE_MODULES.length; m2++) {
-          for (let m3 = m2; m3 < MACHINE_MODULES.length; m3++) {
-            for (let m4 = m3; m4 < MACHINE_MODULES.length; m4++) {
-              const modules = new Modules([
-                MACHINE_MODULES[m1],
-                MACHINE_MODULES[m2],
-                MACHINE_MODULES[m3],
-                MACHINE_MODULES[m4],
-              ]);
-              for (let bN = 1; bN <= MAX_BEACONS; bN++) {
-                const beacons = new Beacons(beacon_modules, bN);
-                configs.push(new Config(modules, beacons));
-              }
+for (let m1 = 0; m1 < MACHINE_MODULES.length; m1++) {
+  for (let m2 = m1; m2 < MACHINE_MODULES.length; m2++) {
+    for (let m3 = m2; m3 < MACHINE_MODULES.length; m3++) {
+      for (let m4 = m3; m4 < MACHINE_MODULES.length; m4++) {
+        const modules = new Modules([
+          MACHINE_MODULES[m1],
+          MACHINE_MODULES[m2],
+          MACHINE_MODULES[m3],
+          MACHINE_MODULES[m4],
+        ]);
+        configs.push(new Config(modules));
+        /**
+         * Beacons
+         */
+        for (let b1 = 0; b1 < BEACON_MODULES.length; b1++) {
+          for (let b2 = b1; b2 < BEACON_MODULES.length; b2++) {
+            if (b1 === 0 && b2 === 0) {
+              continue; // No beacon modules.
+            }
+            const beacon_modules = new Modules([
+              BEACON_MODULES[b1],
+              BEACON_MODULES[b2],
+            ]);
+            for (let bN = 1; bN <= MAX_BEACONS; bN++) {
+              const beacons = new Beacons(beacon_modules, bN);
+              configs.push(new Config(modules, beacons));
             }
           }
         }
       }
     }
   }
-  return configs;
 }
-
-const configs = generate_configs();
 
 /**
  * Finds qualifying solutions for the give item name and target rate per min.
@@ -210,7 +203,6 @@ function validate(input) {
  */
 function solve(input) {
   const solutions = [];
-
   const item = input.item;
   const recipe = Recipes[item];
   const target_rate = parseFloat(input.rate);

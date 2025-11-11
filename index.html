@@ -441,15 +441,13 @@
     switch(type) {
       case 'solve': {
         const { solutions, input } = payload;
-        display(solutions);
-
+        render(solutions_to_html(solutions, input));
         if (solutions) {
           save(input);
         }
       }
     }
   }
-
 
   /**
    * Resolve all input elements in the DOM.
@@ -464,39 +462,54 @@
     max_beacons: document.getElementById('max-beacons'),
   }
 
-
-
-  /**
-   * Renders the given solutions into the solutions space.
-   */
-  function display(solutions) {
-    const parent = document.getElementById('solutions');
-    parent.innerHTML = (solutions || []).map(render).join('');
+  function render(results) {
+    document.getElementById('solutions').innerHTML = results;
   }
 
-
+  function solutions_to_html(solutions, input) {
+    if (!solutions) {
+      return ``;
+    }
+    if (solutions.length === 0) {
+      if (input.min_prod > 40) {
+        return `
+          <div class="solution panel-inset">
+            <h5 style="text-align: center">Invalid</h5>
+            <span class="info">The best achievable production bonus is 40%<span/>
+          </div>`;
+      }
+      if (input.item && input.rate) {
+        return `
+          <div class="solution panel-inset">
+            <h5>No results</h5>
+          </div>`;
+      }
+      return ``;
+    }
+    return solutions.map(solution_to_html).join('');
+  }
 
 
   /**
    * Produces the HTML block for a solution.
    */
-  function render(solution) {
+  function solution_to_html(solution) {
     return `
         <div class="solution panel-inset">
           <a href="${link_to_calc(solution)}" target="_blank">
-                    <div>
+            <div>
               <h5>Overflow</h5>
                 ${
-            ((solution.actual_rate - solution.target_rate) > 1e-12)
+                  ((solution.actual_rate - solution.target_rate) > 1e-12)
                     ? Number(((solution.actual_rate - solution.target_rate) / solution.target_rate * 100).toFixed(3)) + '%'
                     : ''
-    }
+                }
               <span class="info">
                 ${
-            ((solution.actual_rate - solution.target_rate) > 1e-12)
+                  ((solution.actual_rate - solution.target_rate) > 1e-12)
                     ? '~' + Number((solution.actual_rate - solution.target_rate).toFixed(4)) + ' items / min'
                     : 'None'
-    }
+                }
               </span>
             </div>
 
@@ -505,7 +518,7 @@
               <span class="icon ${solution.machine.name}"></span> ⨯ ${Math.ceil(solution.machines_needed)}
               <span class="info">
                 ${(solution.config.prod_bonus * 100).toFixed(0) + '% production' + ', '
-    + (solution.config.speed_bonus * 100).toFixed(0) + '% speed bonus'}
+                + (solution.config.speed_bonus * 100).toFixed(0) + '% speed bonus'}
               </span>
             </div>
 
